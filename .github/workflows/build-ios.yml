@@ -30,22 +30,11 @@ jobs:
       - name: Copy web assets
         run: npx cap copy ios
       
-      - name: Fix Podfile deployment target
-        run: |
-          ls -la ios/App/
-          sed -i '' "s/platform :ios, '.*'/platform :ios, '14.0'/" ios/App/Podfile
-          cat ios/App/Podfile
-      
-      - name: Pod install
-        run: |
-          cd ios/App
-          pod install --repo-update
-      
       - name: Build unsigned archive
         run: |
           cd ios/App
           xcodebuild archive \
-            -workspace App.xcworkspace \
+            -project App.xcodeproj \
             -scheme App \
             -archivePath ../../build/App.xcarchive \
             -sdk iphoneos \
