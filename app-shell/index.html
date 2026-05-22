@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>家庭管理系统</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+}
+.icon { font-size: 3.5rem; margin-bottom: 12px; }
+.title { font-size: 1.3rem; font-weight: 700; color: #1f2937; margin-bottom: 6px; }
+.subtitle { font-size: 0.85rem; color: #6b7280; margin-bottom: 24px; }
+.input-group { margin-bottom: 16px; text-align: left; }
+.input-group label { display: block; font-size: 0.8rem; color: #374151; margin-bottom: 6px; font-weight: 600; }
+.input-group input {
+    width: 100%; padding: 12px 14px; border: 1.5px solid #e5e7eb;
+    border-radius: 12px; font-size: 0.95rem; outline: none;
+    transition: border 0.2s, box-shadow 0.2s; background: #fafafa;
+}
+.input-group input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); background: #fff; }
+.btn {
+    width: 100%; padding: 13px; border: none; border-radius: 12px;
+    font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff;
+    box-shadow: 0 4px 16px rgba(79,70,229,0.35);
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,70,229,0.45); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.history { margin-top: 20px; text-align: left; }
+.history-title { font-size: 0.75rem; color: #9ca3af; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.history-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    background: #f9fafb; border-radius: 10px; margin-bottom: 8px;
+    cursor: pointer; transition: background 0.15s;
+}
+.history-item:hover { background: #f3f4f6; }
+.history-icon { font-size: 1.2rem; }
+.history-text { flex: 1; font-size: 0.88rem; color: #374151; font-weight: 500; }
+.tip { margin-top: 16px; font-size: 0.75rem; color: #9ca3af; }
+</style>
+</head>
+<body>
+<div class="card">
+    <div class="icon">🏠</div>
+    <div class="title">家庭管理系统</div>
+    <div class="subtitle">请输入服务器地址开始使用</div>
+
+    <div class="input-group">
+        <label>服务器地址</label>
+        <input type="url" id="server-url" placeholder="https://example.com/" value="https://52185ea2eff448f59753cabe489f7b26.hn.takin.cc/">
+    </div>
+
+    <button class="btn" id="enter-btn" onclick="enterApp()">进入系统</button>
+
+    <div class="history" id="history-box" style="display:none;">
+        <div class="history-title">历史记录</div>
+        <div id="history-list"></div>
+    </div>
+
+    <div class="tip">支持局域网或公网地址</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'family_app_servers';
+const DEFAULT_URL = 'https://52185ea2eff448f59753cabe489f7b26.hn.takin.cc/';
+
+function getServers() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveServer(url) {
+    let list = getServers().filter(u => u !== url);
+    list.unshift(url);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 5)));
+}
+function renderHistory() {
+    const list = getServers();
+    const box = document.getElementById('history-box');
+    const container = document.getElementById('history-list');
+    if (list.length === 0) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    container.innerHTML = list.map(url => `
+        <div class="history-item" onclick="selectServer('${url.replace(/'/g, "\\'")}')">
+            <span class="history-icon">🌐</span>
+            <span class="history-text">${url}</span>
+        </div>
+    `).join('');
+}
+function selectServer(url) {
+    document.getElementById('server-url').value = url;
+}
+function enterApp() {
+    let url = document.getElementById('server-url').value.trim();
+    if (!url) return alert('请输入服务器地址');
+    if (!url.startsWith('http')) url = 'https://' + url;
+    if (!url.endsWith('/')) url += '/';
+    saveServer(url);
+    // 跳转
+    window.location.href = url;
+}
+// 回车提交
+document.getElementById('server-url').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') enterApp();
+});
+renderHistory();
+</script>
+</body>
+</html>
