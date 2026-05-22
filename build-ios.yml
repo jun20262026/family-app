@@ -1,0 +1,66 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:  # 手动触发（点一下按钮开始编译）
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # 2. 安装 Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      # 3. 安装 Capacitor 依赖
+      - name: Install Capacitor
+        run: npm install @capacitor/core @capacitor/cli @capacitor/ios
+      
+      # 4. 添加 iOS 平台
+      - name: Add iOS platform
+        run: npx cap add ios
+      
+      # 5. 同步资源
+      - name: Sync Capacitor
+        run: npx cap sync ios
+      
+      # 6. 安装 CocoaPods 依赖
+      - name: Pod install
+        run: |
+          cd ios/App
+          pod install --repo-update
+      
+      # 7. 编译 Archive（不签名）
+      - name: Build unsigned archive
+        run: |
+          cd ios/App
+          xcodebuild archive \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -archivePath ../../build/App.xcarchive \
+            -sdk iphoneos \
+            -destination generic/platform=iOS \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+      
+      # 8. 打包成 IPA
+      - name: Package IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r build/App.xcarchive/Products/Applications/App.app build/Payload/
+          cd build
+          zip -r ../家庭管理系统-unsigned.ipa Payload
+      
+      # 9. 上传 IPA 供下载
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: 家庭管理系统-iOS
+          path: 家庭管理系统-unsigned.ipa
