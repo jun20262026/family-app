@@ -1,0 +1,25 @@
+{
+  "appId": "com.jun.familyapp",
+  "appName": "家庭管理系统",
+  "webDir": "app-shell",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#4f46e5",
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#4f46e5"
+    }
+  },
+  "server": {
+    "url": "https://52185ea2eff448f59753cabe489f7b26.hn.takin.cc/"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true
+  }
+}
