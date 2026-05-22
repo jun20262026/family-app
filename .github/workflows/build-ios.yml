@@ -23,16 +23,18 @@ jobs:
         run: npm install @capacitor/core @capacitor/cli @capacitor/ios
       
       - name: Add iOS platform
-        run: npx cap add ios
+        run: |
+          rm -rf ios
+          npx cap add ios
       
-      - name: Sync Capacitor
-        run: npx cap sync ios
+      - name: Copy web assets
+        run: npx cap copy ios
       
       - name: Fix Podfile deployment target
         run: |
-          cd ios/App
-          sed -i '' "s/platform :ios, '.*'/platform :ios, '14.0'/" Podfile
-          cat Podfile
+          ls -la ios/App/
+          sed -i '' "s/platform :ios, '.*'/platform :ios, '14.0'/" ios/App/Podfile
+          cat ios/App/Podfile
       
       - name: Pod install
         run: |
